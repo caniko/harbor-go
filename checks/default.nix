@@ -3,13 +3,14 @@
   self,
   nixpkgs,
   harbor-meta,
+  harborRoot,
 }: let
   inherit (harbor-meta.lib) devShellTests templateTests;
   system = pkgs.stdenv.hostPlatform.system;
   template = templateTests.eval {
     flakeNix = ../templates/default/flake.nix;
     inputs = {
-      harbor = self.inputs.harborRoot;
+      harbor = harborRoot;
       inherit nixpkgs;
       treefmt-nix = self.inputs.treefmt-nix;
     };
@@ -49,7 +50,7 @@ in {
     inherit pkgs system devShellTests;
     flakeNix = ../templates/default/flake.nix;
     inputs = {
-      harbor = self.inputs.harborRoot;
+      harbor = harborRoot;
       inherit nixpkgs;
       treefmt-nix = self.inputs.treefmt-nix;
     };
