@@ -19,7 +19,12 @@
     harbor-meta,
     treefmt-nix,
     ...
-  }: let
+  } @ outputArgs: let
+    harborRoot =
+      outputArgs.harborRoot or (harbor-meta.lib.standaloneRoot {
+        core = harbor-meta;
+        go = self;
+      });
     systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin"];
     forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
     lib = import ./lib {inherit harbor-meta;};
@@ -40,7 +45,7 @@
       template = harbor-meta.lib.templateTests.eval {
         flakeNix = ./templates/default/flake.nix;
         inputs = {
-          harbor-go = self;
+          harbor = harborRoot;
           inherit nixpkgs treefmt-nix;
         };
       };
@@ -57,7 +62,7 @@
       };
     });
     checks = forAllSystems (pkgs:
-      (import ./checks {inherit pkgs self nixpkgs harbor-meta;})
+      (import ./checks {inherit pkgs self nixpkgs harbor-meta harborRoot;})
       // {formatting = (format pkgs).config.build.check self;});
     formatter = forAllSystems (pkgs: (format pkgs).config.build.wrapper);
   };
