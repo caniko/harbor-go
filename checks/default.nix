@@ -43,9 +43,30 @@
     vendorHash = null;
     subPackages = ["."];
     target = "aarch64-linux";
+    env.CGO_ENABLED = "0";
     postConfigure = ''
       printf 'generated assets\n' > greeting.txt
     '';
+  };
+  # cgo is the default; a target build must refuse it instead of emptying it.
+  cgoCrossRejected =
+    !(builtins.tryEval
+      (self.lib.mkGoPackage {
+        inherit pkgs toolchain;
+        pname = "harbor-go-cgo-cross";
+        version = "1.0";
+        src = ../templates/default;
+        vendorHash = null;
+        target = "aarch64-linux";
+      }).drvPath).success;
+  armv6 = self.lib.mkGoPackage {
+    inherit pkgs toolchain;
+    pname = "harbor-go-armv6";
+    version = "1.0";
+    src = ../templates/default;
+    vendorHash = null;
+    env.CGO_ENABLED = "0";
+    target = "armv6l-linux";
   };
 in
   {
@@ -121,6 +142,8 @@ in
         test "${nativeCross.passthru.goNativeCross.GOARCH}" = "arm64"
         test "${nativeCross.passthru.goNativeCross.targetSystem}" = "aarch64-linux"
         test "${nativeCross.system}" = "${pkgs.stdenv.hostPlatform.system}"
+        test "${toString cgoCrossRejected}" = "1"
+        test "${armv6.drvAttrs.GOARM or armv6.GOARM or ""}" = "6"
         test -x ${nativeCross}/bin/hello
         file -b ${nativeCross}/bin/hello | grep -q 'ARM aarch64'
         touch "$out"
