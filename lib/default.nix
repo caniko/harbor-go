@@ -95,12 +95,14 @@
             // lib.mapAttrs (_: toString) targetGo
             // {CGO_ENABLED = "0";};
           doCheck = false;
+          doInstallCheck = false;
           # buildGoModule only normalises $GOPATH/bin/$GOOS_$GOARCH when the
           # stdenv itself is cross. Native-cross keeps a native stdenv, so do it
           # here before installPhase copies $GOPATH/bin.
           postBuild =
             (old.postBuild or "")
             + ''
+
               gobin="$GOPATH/bin/${targetGo.GOOS}_${targetGo.GOARCH}"
               if [ -d "$gobin" ]; then
                 mv "$gobin"/* "$GOPATH/bin/"
