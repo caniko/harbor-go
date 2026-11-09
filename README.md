@@ -1,8 +1,8 @@
 # harbor-go
 
 Reusable Go toolchains, reproducible module builds, and composable development
-shells for Nix flakes. The default toolchain is Go 1.27.1, gopls 0.23.0, and
-golangci-lint 2.13.1. The compiler is selected explicitly: Nixpkgs' default Go
+shells for Nix flakes. The default toolchain is Go 1.27.3, gopls 0.24.0, and
+golangci-lint 2.14.0. The compiler is selected explicitly: Nixpkgs' default Go
 is an older minor version.
 
 Native outputs support `x86_64-linux`, `aarch64-linux`, and `aarch64-darwin`.
@@ -69,10 +69,10 @@ The repository's `.envrc` loads its default shell with nix-direnv.
 ## Roborev consumer recipe
 
 Requirements were traced against kenn-io/roborev revision
-`26a236d3eeb7ce3062cb8e30101dec3ac8018670`:
+`4cbd2564e36838ef192ac6f3c7d55cb154b7acad`:
 
-- `go.mod` requires Go 1.27.0; CI uses 1.27.1.
-- `make lint-ci` requires golangci-lint **exactly 2.13.1**. Harbor retains
+- `go.mod` requires Go 1.27.3.
+- `make lint-ci` requires golangci-lint **exactly 2.14.0** (`.custom-gcl.yml`). Harbor retains
   Nixpkgs' linter packaging and pins that version's source and vendor hashes.
 - CGO/race tests need a C compiler. Add SQLite headers to the consumer shell
   for upstream CGO checks, and Git for tests that invoke Git.

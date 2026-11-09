@@ -120,7 +120,7 @@ in
       } ''
         go version | grep -F 'go${toolchain.go.version}'
         gopls version
-        test "$(golangci-lint version --short)" = '2.13.1'
+        test "$(golangci-lint version --short)" = '2.14.0'
         go version -m "$(command -v gopls)" | grep -F 'go${toolchain.go.version}'
         go version -m "$(command -v golangci-lint)" | grep -F 'go${toolchain.go.version}'
         export HOME="$TMPDIR" GOLANGCI_LINT_CACHE="$TMPDIR/lint-cache" GOCACHE="$TMPDIR/go-cache"
