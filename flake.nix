@@ -28,11 +28,9 @@
     systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin"];
     forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
     lib = import ./lib {inherit harbor-meta;};
-    format = pkgs:
-      treefmt-nix.lib.evalModule pkgs {
-        imports = [harbor-meta.treefmtModules.nix harbor-meta.treefmtModules.toml self.treefmtModules.go];
-        projectRootFile = "flake.nix";
-      };
+    treefmt =
+      forAllSystems (pkgs:
+        treefmt-nix.lib.evalModule pkgs (import ./nix/treefmt.nix {inherit harbor-meta;}));
   in {
     inherit lib;
     treefmtModules.go = ./nix/treefmt/go.nix;
@@ -58,12 +56,12 @@
     devShells = forAllSystems (pkgs: {
       default = lib.mkGoDevShell {
         inherit pkgs;
-        packages = [(format pkgs).config.build.wrapper];
+        packages = [self.formatter.${pkgs.stdenv.hostPlatform.system}];
       };
     });
     checks = forAllSystems (pkgs:
       (import ./checks {inherit pkgs self nixpkgs harbor-meta harborRoot;})
-      // {formatting = (format pkgs).config.build.check self;});
-    formatter = forAllSystems (pkgs: (format pkgs).config.build.wrapper);
+      // {formatting = treefmt.${pkgs.stdenv.hostPlatform.system}.config.build.check self;});
+    formatter = builtins.mapAttrs (_: eval: eval.config.build.wrapper) treefmt;
   };
 }
